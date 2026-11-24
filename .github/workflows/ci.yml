@@ -28,7 +28,7 @@ jobs:
 
       # Verifier le CSS
       - name: Verifier le CSS
-        run: test -f site/style.css
+        run: test -f site/styles.css
 
       # Confirmation
       - name: Confirmation
