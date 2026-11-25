@@ -1,22 +1,6 @@
-
-# Nom du projet
-name: tp-afrikatech
-
-# Définition des services
 services:
-
-  # Service Web avec Nginx
   web:
-    # Image Docker utilisée
-    image: nginx:alpine
-
-    # Configuration des ports
+    build: .
     ports:
-      - "8081:80"
-
-    # Montage du dossier du site dans le conteneur
-    volumes:
-      - ./site:/usr/share/nginx/html:ro
-
-    # Redémarrage automatique du conteneur
+      - "127.0.0.1:8080:80"
     restart: unless-stopped
