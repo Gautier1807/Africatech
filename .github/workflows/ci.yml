@@ -1,35 +1,58 @@
 
-name: Verification du site AfriShop
+name: CI-CD AfriShop
 
 # Evenements declencheurs
 on:
   push:
     branches: [main]
-
   workflow_dispatch:
 
-# Liste des travaux
+# Autorisations de publication
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
+
+  # Premier job : verification et preparation
   verification:
     runs-on: ubuntu-latest
 
     steps:
-      # Recuperer le code source
       - name: Recuperer le code
         uses: actions/checkout@v4
 
-      # Afficher les fichiers
-      - name: Afficher les fichiers
-        run: ls -la site/
+      - name: Verifier les fichiers non vides
+        run: |
+          test -s site/index.html
+          test -s site/style.css
 
-      # Verifier le HTML
-      - name: Verifier le HTML
-        run: test -f site/index.html
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
 
-      # Verifier le CSS
-      - name: Verifier le CSS
-        run: test -f site/style.css
+      - name: Preparer le site
+        run: |
+          mkdir -p public
+          cp site/index.html site/style.css public/
+          if [ -d site/images ]; then cp -r site/images public/; fi
 
-      # Confirmation
-      - name: Confirmation
-        run: echo "Verification reussie"
+      - name: Creer l artefact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  # Deuxieme job : deploiement
+  deploiement:
+    needs: verification
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deployer le site
+        id: deployment
+        uses: actions/deploy-pages@v4
+
